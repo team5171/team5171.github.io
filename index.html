@@ -1,14 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Redirecting...</title>
-    <script>
-        // Redirect immediately
-        window.location.href = "https://team5171.com";
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team 5171 | Member Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Source+Code+Pro:wght@400;700&display=swap');
+
+        :root {
+            --brand-bg: #212121;
+            --brand-slate: #37474f;
+            --brand-accent: #7db6b1;
+            /* Team Teal */
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .code-font {
+            font-family: 'Source Code Pro', monospace;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #212121 0%, #37474f 100%);
+        }
+
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
-<body>
-    <p>If you are not redirected automatically, <a href="https://team5171.com">click here</a>.</p>
+
+<body class="text-gray-900">
+
+    <header class="hero-gradient text-white py-16 px-6 relative overflow-hidden shadow-2xl">
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <img src="https://github.com/team5171.png" alt="Team 5171 Logo"
+                class="w-28 h-28 mx-auto rounded-full border-4 border-[#7db6b1] bg-white shadow-xl mb-6">
+
+            <h1 class="text-5xl font-light tracking-tight mb-2 uppercase">
+                Team <span class="font-bold text-[#7db6b1]">5171</span>
+            </h1>
+            <p class="text-gray-400 text-sm md:text-base code-font tracking-widest uppercase mb-4">
+                MeMbEr dashbOard </p>
+            <div class="h-1 w-24 bg-[#7db6b1] mx-auto rounded-full"></div>
+        </div>
+
+        <div class="absolute inset-0 opacity-10"
+            style="background-image: linear-gradient(#7db6b1 1px, transparent 1px), linear-gradient(90deg, #7db6b1 1px, transparent 1px); background-size: 40px 40px;">
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto py-12 px-6">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <a href="https://team5171.github.io/2026docs" target="_blank"
+                class="card-hover flex items-start p-6 bg-white border-l-4 border-blue-500 rounded-xl shadow-sm group">
+                <div class="p-3 bg-blue-50 rounded-lg mr-5 group-hover:bg-blue-500 transition-colors">
+                    <i data-lucide="terminal" class="w-7 h-7 text-blue-600 group-hover:text-white"></i>
+                </div>
+                <div>
+                    <h2 class="font-bold text-lg text-gray-800">Documentation</h2>
+                    <p class="text-sm text-gray-500 mt-1">2026 documentation.</p>
+                </div>
+            </a>
+
+            <a href="https://docs.google.com/document/d/1Fsams-tIOZhHUrwUV1q8RYRz_24t8mEAg82eP7mos2c/edit?usp=sharing"
+                target="_blank"
+                class="card-hover flex items-start p-6 bg-white border-l-4 border-[#7db6b1] rounded-xl shadow-sm group">
+                <div class="p-3 bg-teal-50 rounded-lg mr-5 group-hover:bg-[#7db6b1] transition-colors">
+                    <i data-lucide="book-open" class="w-7 h-7 text-[#7db6b1] group-hover:text-white"></i>
+                </div>
+                <div>
+                    <h2 class="font-bold text-lg text-gray-800">Team Handbook</h2>
+                    <p class="text-sm text-gray-500 mt-1">Information, safety, and our team expectations.</p>
+                </div>
+            </a>
+
+            <a href="https://www.firstinspires.org/resources/library/frc/season-materials?view=calendar" target="_blank"
+                class="card-hover flex items-start p-6 bg-white border-l-4 border-orange-500 rounded-xl shadow-sm group">
+                <div class="p-3 bg-orange-50 rounded-lg mr-5 group-hover:bg-orange-500 transition-colors">
+                    <i data-lucide="layers" class="w-7 h-7 text-orange-600 group-hover:text-white"></i>
+                </div>
+                <div>
+                    <h2 class="font-bold text-lg text-gray-800">Season Materials</h2>
+                    <p class="text-sm text-gray-500 mt-1">Kickoff docs, game manuals, and other info.</p>
+                </div>
+            </a>
+
+            <a href="https://team5171.github.io/rsvp" target="_blank"
+                class="card-hover flex items-start p-6 bg-white border-l-4 border-green-500 rounded-xl shadow-sm group">
+                <div class="p-3 bg-green-50 rounded-lg mr-5 group-hover:bg-green-500 transition-colors">
+                    <i data-lucide="calendar-check" class="w-7 h-7 text-green-600 group-hover:text-white"></i>
+                </div>
+                <div>
+                    <h2 class="font-bold text-lg text-gray-800">Event RSVP</h2>
+                    <p class="text-sm text-gray-500 mt-1">Confirm your spot for upcoming build sessions.</p>
+                    <p class="text-sm text-gray-500 mt-1">This link takes you to the next one.</p>
+                </div>
+            </a>
+
+            <a href="https://team5171.github.io/checkin" target="_blank"
+                class="card-hover flex items-start p-6 bg-white border-l-4 border-red-500 rounded-xl shadow-sm group">
+                <div class="p-3 bg-red-50 rounded-lg mr-5 group-hover:bg-red-500 transition-colors">
+                    <i data-lucide="map-pin" class="w-7 h-7 text-red-600 group-hover:text-white"></i>
+                </div>
+                <div>
+                    <h2 class="font-bold text-lg text-gray-800">Check-In</h2>
+                    <p class="text-sm text-gray-500 mt-1">Check-In for the Robotics computers</p>
+
+                </div>
+            </a>
+
+            <a href="https://www.firstinspires.org/programs/youth-registration" target="_blank"
+                class="card-hover flex items-start p-6 bg-white border-l-4 border-purple-500 rounded-xl shadow-sm group">
+                <div class="p-3 bg-purple-50 rounded-lg mr-5 group-hover:bg-purple-500 transition-colors">
+                    <i data-lucide="shield-check" class="w-7 h-7 text-purple-600 group-hover:text-white"></i>
+                </div>
+                <div>
+                    <h2 class="font-bold text-lg text-gray-800">Youth Registration</h2>
+                    <p class="text-sm text-gray-500 mt-1">Complete your FIRST registration.</p>
+                </div>
+            </a>
+
+        </div>
+
+        <div class="mt-20 pt-10 border-t border-gray-200">
+            <h3 class="text-center text-xs font-bold text-gray-400 tracking-[0.3em] uppercase mb-10">Other Notes</h3>
+            <div class="flex flex-wrap justify-center gap-6 md:gap-12">
+                <a href="http://team5171.com"
+                    class="text-sm font-medium text-gray-600 hover:text-[#7db6b1] transition-colors">Home</a>
+                <a href="https://www.firstinspires.org/"
+                    class="text-sm font-medium text-gray-600 hover:text-[#7db6b1] transition-colors">FIRST Robotics</a>
+                <a href="https://www.york.org/"
+                    class="text-sm font-medium text-gray-600 hover:text-[#7db6b1] transition-colors">York School</a>
+                <a href="https://drive.google.com/file/d/14ISSX4VzSgb4vgH6r-kA8THuxGXQBrBT/view?usp=sharing"
+                    class="text-sm font-medium text-gray-600 hover:text-[#7db6b1] transition-colors">Sponsor Info</a>
+                <a href="https://www.york.org/giving/ways-to-give"
+                    class="text-sm font-medium text-gray-600 hover:text-[#7db6b1] transition-colors font-bold">Donate</a>
+            </div>
+        </div>
+
+        <footer class="mt-16 py-8 text-center">
+            <div class="flex justify-center gap-6 mb-8 text-gray-400">
+                <a href="https://www.instagram.com/yorkrobotics/" target="_blank"
+                    class="hover:text-pink-600 transition-colors"><i data-lucide="instagram"></i></a>
+                <a href="https://www.tiktok.com/@yorkschoolrobotics" target="_blank"
+                    class="hover:text-black transition-colors"><i data-lucide="video"></i></a>
+                <a href="https://www.facebook.com/YorkRobotics/" target="_blank"
+                    class="hover:text-blue-600 transition-colors"><i data-lucide="facebook"></i></a>
+                <a href="https://www.youtube.com/@yorkrobotics" target="_blank"
+                    class="hover:text-red-600 transition-colors"><i data-lucide="youtube"></i></a>
+                <a href="https://github.com/team5171" target="_blank" class="hover:text-gray-900 transition-colors"><i
+                        data-lucide="github"></i></a>
+                <a href="https://www.linkedin.com/in/team5171/" target="_blank"
+                    class="hover:text-blue-700 transition-colors"><i data-lucide="linkedin"></i></a>
+            </div>
+            <p class="text-[10px] code-font text-gray-400 uppercase tracking-widest">
+                Made by Veer Bajaj ~ © Team 5171 2026
+            </p>
+        </footer>
+    </main>
+
+    <script>
+        // Start Lucide Icons
+        lucide.createIcons();
+    </script>
 </body>
+
 </html>
