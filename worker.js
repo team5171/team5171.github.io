@@ -6,6 +6,7 @@ function getCorsHeaders(origin) {
     const allow =
         origin === `https://${ALLOWED_DOMAIN}` ||
         origin.endsWith(`.${ALLOWED_DOMAIN}`) ||
+        origin === "https://team5171.github.io" ||
         origin.startsWith("http://localhost") ||
         origin.startsWith("http://127.0.0.1") ||
         origin.startsWith("http://[::]");
