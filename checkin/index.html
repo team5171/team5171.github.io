@@ -1,161 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Resolving Next Event | Team 5171</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting to Check-In | Team 5171</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #090b0f;
+            --accent-primary: #58a6ff;
+            --accent-secondary: #bc8cff;
+            --text-main: #e6edf3;
+            --text-dim: #8b949e;
+        }
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700&display=swap" rel="stylesheet">
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            overflow: hidden;
+        }
 
-<style>
-:root{
-    --bg:#090b0f;
-    --glass:rgba(22,27,34,.7);
-    --border:rgba(255,255,255,.08);
-    --accent1:#58a6ff;
-    --accent2:#bc8cff;
-    --text:#e6edf3;
-    --dim:#8b949e;
-}
-body{
-    margin:0;
-    background:var(--bg);
-    font-family:'Inter',sans-serif;
-    color:var(--text);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    height:100vh;
-}
-.card{
-    width:420px;
-    padding:40px;
-    background:var(--glass);
-    border:1px solid var(--border);
-    border-radius:24px;
-    text-align:center;
-    backdrop-filter:blur(10px);
-}
-h1{
-    font-family:'Outfit',sans-serif;
-    margin:0 0 12px 0;
-    background:linear-gradient(135deg,var(--accent1),var(--accent2));
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-}
-.subtitle{
-    color:var(--dim);
-    font-size:.9rem;
-}
-a{
-    color:var(--accent1);
-    font-weight:600;
-    text-decoration:none;
-}
-</style>
+        .container {
+            max-width: 400px;
+            padding: 40px;
+            background: rgba(22, 27, 34, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 40px rgba(88, 166, 255, 0.1);
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(88, 166, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--accent-primary);
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto 24px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            margin: 0 0 12px 0;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .fallback {
+            margin-top: 24px;
+            display: none;
+        }
+
+        .fallback a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
 </head>
+
 <body>
+    <div class="container">
+        <div class="loader" id="loader"></div>
+        <h1 id="status">Redirecting to Check-In</h1>
+        <p id="sub-status">Resolving next team event...</p>
 
-<div class="card">
-    <h1 id="title">Resolving Next Event</h1>
-    <div class="subtitle" id="subtitle">Fetching calendar...</div>
-</div>
+        <div class="fallback" id="fallback">
+            <p>Taking too long? <a href="https://lu.ma/team5171">Click here to go to Luma instead.</a></p>
+        </div>
+    </div>
 
-<script>
-const CALENDAR_ENDPOINT = "https://rsvp.yorkroboticsfrc.workers.dev/calendar";
-const FALLBACK = "https://lu.ma/team5171";
+    <script>
+        const AUTH_WORKER = "https://rsvp.yorkroboticsfrc.workers.dev";
+        const FALLBACK_URL = "https://lu.ma/team5171";
 
-init();
+        async function initRedirect() {
+            const status = document.getElementById('status');
+            const subStatus = document.getElementById('sub-status');
+            const fallback = document.getElementById('fallback');
 
-async function init() {
-    try {
-        const res = await fetch(CALENDAR_ENDPOINT);
-        if (!res.ok) throw new Error("Calendar fetch failed");
+            setTimeout(() => { fallback.style.display = 'block'; }, 5000);
 
-        const text = await res.text();
-        const events = parseICS(text);
-        const nextEvent = getNextEvent(events);
+            try {
+                // 1️⃣ Get calendar ICS
+                const res = await fetch(`${AUTH_WORKER}/calendar`);
+                if (!res.ok) throw new Error("Calendar fetch failed");
 
-        if (!nextEvent) throw new Error("No upcoming events");
+                const text = await res.text();
+                const events = parseICS(text);
+                const nextEvent = getNextEvent(events);
 
-        const targetUrl = extractUrl(nextEvent.description);
-        if (!targetUrl) throw new Error("No link found in event");
+                if (!nextEvent) {
+                    throw new Error("No upcoming event found");
+                }
 
-        document.getElementById("subtitle").innerText =
-            `Redirecting to: ${nextEvent.summary}`;
+                // 2️⃣ Extract Luma slug from description
+                const slug = extractSlug(nextEvent.description);
+                if (!slug) throw new Error("Event slug not found");
 
-        window.location.replace(targetUrl);
+                subStatus.innerText = `Found event: ${nextEvent.summary}`;
 
-    } catch (err) {
-        console.error(err);
-        document.getElementById("title").innerText = "Redirect Failed";
-        document.getElementById("subtitle").innerHTML =
-            `Going to fallback...<br><a href="${FALLBACK}">Click here if not redirected</a>`;
-        setTimeout(() => window.location.replace(FALLBACK), 1500);
-    }
-}
+                // 3️⃣ Resolve check-in URL via Worker
+                const checkinRes = await fetch(`${AUTH_WORKER}/checkin?slug=${slug}`);
+                if (!checkinRes.ok) throw new Error("Check-in resolution failed");
 
-/* ---------- ICS PARSER ---------- */
+                const { checkInUrl } = await checkinRes.json();
 
-function parseICS(data){
-    const lines = data.split(/\r\n|\n|\r/);
-    const events = [];
-    let current = null;
+                // 4️⃣ Redirect
+                setTimeout(() => {
+                    window.location.href = checkInUrl;
+                }, 500);
 
-    for(const line of lines){
-        if(line.startsWith("BEGIN:VEVENT")) current = {};
-        else if(line.startsWith("END:VEVENT")){
-            if(current) events.push(current);
-            current = null;
-        }
-        else if(current){
-            const [key,...v] = line.split(":");
-            const value = v.join(":");
-            if(key.includes("DTSTART")) current.start = value;
-            if(key.includes("SUMMARY")) current.summary = value;
-            if(key.includes("DESCRIPTION")) current.description = value;
-        }
-    }
-    return events;
-}
-
-function getNextEvent(events){
-    const now = new Date();
-    return events.map(e=>{
-        if(!e.start) return null;
-
-        const d = e.start;
-        let date;
-
-        if(d.length === 8){
-            date = new Date(`${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6,8)}`);
-        } else {
-            const y=d.slice(0,4),
-                  m=d.slice(4,6),
-                  day=d.slice(6,8),
-                  h=d.slice(9,11),
-                  min=d.slice(11,13),
-                  s=d.slice(13,15);
-
-            date = d.endsWith("Z")
-                ? new Date(Date.UTC(y,m-1,day,h,min,s))
-                : new Date(y,m-1,day,h,min,s);
+            } catch (err) {
+                console.error(err);
+                status.innerText = "Redirect Failed";
+                subStatus.innerText = "Redirecting to main calendar...";
+                setTimeout(() => { window.location.href = FALLBACK_URL; }, 1500);
+            }
         }
 
-        return {...e,date};
-    })
-    .filter(e=>e && e.date > now)
-    .sort((a,b)=>a.date - b.date)[0];
-}
+        // --- ICS parsing functions (same as before) ---
+        function parseICS(icsData) {
+            const events = [];
+            const lines = icsData.split(/\r\n|\n|\r/);
+            let currentEvent = null;
 
-function extractUrl(desc){
-    if(!desc) return null;
-    const match = desc.match(/https?:\/\/[^\s\\]+/);
-    return match ? match[0] : null;
-}
-</script>
+            for (const line of lines) {
+                if (line.startsWith('BEGIN:VEVENT')) currentEvent = {};
+                else if (line.startsWith('END:VEVENT')) { if (currentEvent) events.push(currentEvent); currentEvent = null; }
+                else if (currentEvent) {
+                    const [key, ...v] = line.split(':');
+                    const value = v.join(':');
+                    if (key && value) {
+                        if (key.includes('DTSTART')) currentEvent.start = value;
+                        if (key.includes('SUMMARY')) currentEvent.summary = value;
+                        if (key.includes('DESCRIPTION')) currentEvent.description = value;
+                    }
+                }
+            }
+            return events;
+        }
 
+        function getNextEvent(events) {
+            const now = new Date();
+            return events.map(e => {
+                if (!e.start) return null;
+                const d = e.start;
+                let date;
+                if (d.length === 8) date = new Date(`${d.substring(0, 4)}-${d.substring(4, 6)}-${d.substring(6, 8)}`);
+                else {
+                    const y = d.substring(0, 4), m = d.substring(4, 6), day = d.substring(6, 8),
+                        h = d.substring(9, 11), min = d.substring(11, 13), s = d.substring(13, 15);
+                    date = d.endsWith('Z') ? new Date(Date.UTC(y, m - 1, day, h, min, s)) : new Date(y, m - 1, day, h, min, s);
+                }
+                return e ? { ...e, date } : null;
+            }).filter(e => e && e.date > now).sort((a, b) => a.date - b.date)[0];
+        }
+
+        function extractSlug(desc) {
+            if (!desc) return null;
+            const match = desc.match(/https?:\/\/luma\.com\/([a-zA-Z0-9]+)/);
+            return match ? match[1] : null;
+        }
+
+        window.onload = initRedirect;
+    </script>
 </body>
+
 </html>
