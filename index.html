@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Team 5171 | Member Dashboard</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Source+Code+Pro:wght@400;700&display=swap');
 
@@ -14,7 +16,6 @@
             --brand-bg: #212121;
             --brand-slate: #37474f;
             --brand-accent: #7db6b1;
-            /* Team Teal */
         }
 
         body {
@@ -38,11 +39,56 @@
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
+
+        .overlay-hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
     </style>
 </head>
 
 <body class="text-gray-900">
 
+    <!-- FULL PAGE APP OVERLAY -->
+    <div id="appOverlay"
+        class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[999] transition-opacity duration-300 overlay-hidden">
+
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-6 p-10 text-center relative">
+
+            <button onclick="hideOverlay()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-900 transition">
+                ✕
+            </button>
+
+            <div class="mb-6 flex justify-center">
+                <div class="p-4 bg-[#7db6b1]/10 rounded-full">
+                    <i data-lucide="monitor" class="w-10 h-10 text-[#7db6b1]"></i>
+                </div>
+            </div>
+
+            <h2 class="text-2xl font-bold mb-3">
+                Team 5171 Desktop App Available
+            </h2>
+
+            <p class="text-gray-600 text-sm mb-6">
+                The Team 5171 app is available for macOS and Windows.
+                Install it for a faster, native experience.
+            </p>
+
+            <div class="flex justify-center gap-4">
+                <a href="/downloads"
+                    class="px-6 py-3 bg-[#7db6b1] text-white rounded-lg font-semibold hover:opacity-90 transition">
+                    View Downloads
+                </a>
+
+                <button onclick="hideOverlay()"
+                    class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition">
+                    Continue to Site
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NORMAL SITE CONTENT -->
     <header class="hero-gradient text-white py-16 px-6 relative overflow-hidden shadow-2xl">
         <div class="max-w-5xl mx-auto text-center relative z-10">
             <img src="https://github.com/team5171.png" alt="Team 5171 Logo"
@@ -52,12 +98,9 @@
                 Team <span class="font-bold text-[#7db6b1]">5171</span>
             </h1>
             <p class="text-gray-400 text-sm md:text-base code-font tracking-widest uppercase mb-4">
-                MeMbEr dashbOard </p>
+                Member Dashboard
+            </p>
             <div class="h-1 w-24 bg-[#7db6b1] mx-auto rounded-full"></div>
-        </div>
-
-        <div class="absolute inset-0 opacity-10"
-            style="background-image: linear-gradient(#7db6b1 1px, transparent 1px), linear-gradient(90deg, #7db6b1 1px, transparent 1px); background-size: 40px 40px;">
         </div>
     </header>
 
@@ -172,11 +215,44 @@
             </p>
         </footer>
     </main>
+    <!-- App Promo Toast -->
+    <div id="appToast" class="fixed bottom-6 right-6 bg-gray-900 text-white px-6 py-4 rounded-xl shadow-2xl 
+            flex items-start gap-4 opacity-0 translate-y-4 pointer-events-none 
+            transition-all duration-300 z-50 max-w-sm">
 
+        <div class="flex-1">
+            <p class="font-semibold text-sm">Team 5171 App Available!</p>
+            <p class="text-xs text-gray-300 mt-1">
+                The Team 5171 app is available for macOS and Windows.
+            </p>
+            <a href="/downloads" class="inline-block mt-3 text-xs font-bold text-[#7db6b1] hover:underline">
+                View Downloads →
+            </a>
+        </div>
+
+        <button onclick="hideToast()" class="text-gray-400 hover:text-white">
+            ✕
+        </button>
+    </div>
     <script>
-        // Start Lucide Icons
         lucide.createIcons();
+
+        function showOverlay() {
+            document.getElementById("appOverlay").classList.remove("overlay-hidden");
+        }
+
+        function hideOverlay() {
+            document.getElementById("appOverlay").classList.add("overlay-hidden");
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        const isApp = params.get("app") === "true";
+
+        if (!isApp) {
+            setTimeout(showOverlay, 400);
+        }
     </script>
+
 </body>
 
 </html>
