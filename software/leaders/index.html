@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Org Standings | Team 5171</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --bg: #0d1117;
+            --glass: rgba(22, 27, 34, 0.65);
+            --border: rgba(255, 255, 255, 0.08);
+            --accent: #bc8cff;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --bronze: #cd7f32;
+            --text-main: #e6edf3;
+            --text-dim: #8b949e;
+        }
+
+        body {
+            font-family: Inter, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #fff, #bc8cff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(18px);
+        }
+
+        .leader {
+            display: grid;
+            grid-template-columns: 60px 1fr 120px 120px 120px 120px;
+            align-items: center;
+            padding: 14px;
+            border-radius: 14px;
+            transition: 0.2s;
+        }
+
+        .leader:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .rank {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .gold {
+            color: var(--gold);
+        }
+
+        .silver {
+            color: var(--silver);
+        }
+
+        .bronze {
+            color: var(--bronze);
+        }
+
+        .user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .score {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .header-row {
+            opacity: 0.6;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            padding-bottom: 10px;
+        }
+
+        @media(max-width: 900px) {
+            .leader {
+                grid-template-columns: 50px 1fr 90px 90px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Team 5171 Org Standings</h1>
+        <div class="subtitle">Live leaderboard across entire GitHub organization</div>
+
+        <div class="card">
+            <div class="leader header-row">
+                <div>#</div>
+                <div>User</div>
+                <div>Commits</div>
+                <div>PRs</div>
+                <div>Issues</div>
+                <div>Score</div>
+            </div>
+
+            <div id="leaderboard">
+                Loading standings...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const CONFIG = {
+            org: "team5171",
+            authWorker: "https://team5171pat.veerbajaj11.workers.dev"
+        };
+
+        async function getHeaders() {
+            const res = await fetch(`${CONFIG.authWorker}/pat`);
+            const data = await res.json();
+            return {
+                "Authorization": `token ${data.token}`,
+                "Accept": "application/vnd.github+json"
+            };
+        }
+
+        function isValidRepo(name) {
+            const currentYear = new Date().getFullYear();
+            const match = name.match(/^FRC-(\d{4})$/);
+            if (!match) return true;
+            return parseInt(match[1]) >= currentYear;
+        }
+
+        async function fetchAllPages(url, headers) {
+            let results = [];
+            let page = 1;
+
+            while (true) {
+                const res = await fetch(`${url}&per_page=100&page=${page}`, { headers });
+                const data = await res.json();
+                if (!data.length) break;
+                results.push(...data);
+                page++;
+            }
+            return results;
+        }
+
+        async function loadStandings() {
+            const board = document.getElementById("leaderboard");
+            board.innerHTML = "Scanning organization...";
+
+            try {
+                const headers = await getHeaders();
+
+                // Get all repos
+                const repos = await fetchAllPages(
+                    `https://api.github.com/orgs/${CONFIG.org}/repos?type=all`,
+                    headers
+                );
+
+                const filtered = repos.filter(r => isValidRepo(r.name));
+
+                const stats = {};
+
+                for (const repo of filtered) {
+
+                    // Commits
+                    const commits = await fetchAllPages(
+                        `https://api.github.com/repos/${CONFIG.org}/${repo.name}/commits?since=${new Date(new Date().getFullYear(), 0, 1).toISOString()}`,
+                        headers
+                    );
+
+                    commits.forEach(c => {
+                        const user = c.author?.login;
+                        if (!user) return;
+                        if (!stats[user]) stats[user] = { commits: 0, prs: 0, issues: 0, avatar: c.author.avatar_url };
+                        stats[user].commits++;
+                    });
+
+                    // PRs
+                    const prs = await fetchAllPages(
+                        `https://api.github.com/repos/${CONFIG.org}/${repo.name}/pulls?state=all`,
+                        headers
+                    );
+
+                    prs.forEach(p => {
+                        const user = p.user.login;
+                        if (!stats[user]) stats[user] = { commits: 0, prs: 0, issues: 0, avatar: p.user.avatar_url };
+                        stats[user].prs++;
+                    });
+
+                    // Issues
+                    const issues = await fetchAllPages(
+                        `https://api.github.com/repos/${CONFIG.org}/${repo.name}/issues?state=all`,
+                        headers
+                    );
+
+                    issues.filter(i => !i.pull_request).forEach(i => {
+                        const user = i.user.login;
+                        if (!stats[user]) stats[user] = { commits: 0, prs: 0, issues: 0, avatar: i.user.avatar_url };
+                        stats[user].issues++;
+                    });
+                }
+
+                const leaderboard = Object.entries(stats)
+                    .map(([user, data]) => {
+                        const score = data.commits + (data.prs * 3) + (data.issues * 2);
+                        return { user, ...data, score };
+                    })
+                    .sort((a, b) => b.score - a.score);
+
+                board.innerHTML = leaderboard.map((u, i) => `
+            <div class="leader">
+                <div class="rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}">
+                    ${i + 1}
+                </div>
+                <div class="user">
+                    <img src="${u.avatar}" class="avatar">
+                    ${u.user}
+                </div>
+                <div>${u.commits}</div>
+                <div>${u.prs}</div>
+                <div>${u.issues}</div>
+                <div class="score">${u.score}</div>
+            </div>
+        `).join("");
+
+            } catch (e) {
+                board.innerHTML = "Failed to load standings.";
+            }
+        }
+
+        loadStandings();
+        setInterval(loadStandings, 120000);
+    </script>
+
+</body>
+
+</html>
