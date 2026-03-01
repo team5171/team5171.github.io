@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team 5171 — Releases</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #1a1c1e;
+            --surface: #2d3135;
+            --border: rgba(255, 255, 255, 0.1);
+            --accent: #7db6b1;
+            --accent-dim: rgba(125, 182, 177, 0.08);
+            --text: #e6edf3;
+            --muted: rgba(230, 237, 243, 0.4);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Syne', sans-serif;
+            min-height: 100vh;
+            padding: 60px 20px;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .bg-glow {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-glow::before {
+            content: '';
+            position: absolute;
+            width: 700px;
+            height: 700px;
+            border-radius: 50%;
+            background: rgba(125, 182, 177, 0.03);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse-glow 4s ease-in-out infinite;
+        }
+
+        .bg-glow::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(125, 182, 177, 0.02);
+        }
+
+        .scan-line {
+            position: fixed;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(125, 182, 177, 0.1);
+            animation: scan 10s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .wrap {
+            position: relative;
+            z-index: 1;
+            max-width: 680px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        header {
+            animation: fade-up 0.6s 0.1s both;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px 4px 8px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(125, 18, 38, 0.15);
+            border-radius: 100px;
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .status-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: dot-pulse 2s ease-in-out infinite;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            line-height: 1.05;
+            margin-bottom: 10px;
+        }
+
+        h1 span {
+            color: var(--accent);
+        }
+
+        .subtitle {
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            font-weight: 300;
+            color: var(--muted);
+            letter-spacing: 0.04em;
+        }
+
+        .os-banner {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.06em;
+            color: var(--accent);
+            margin-top: 18px;
+            opacity: 0.75;
+        }
+
+        /* Release card */
+        .release {
+            position: relative;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            padding: 40px 40px 36px;
+            animation: fade-up 0.6s both;
+        }
+
+        .release::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 2px;
+            padding: 1px;
+            border: 1px solid var(--border);
+            pointer-events: none;
+        }
+
+        .corner {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-color: var(--accent);
+            border-style: solid;
+            opacity: 0.45;
+        }
+
+        .corner-tl {
+            top: -1px;
+            left: -1px;
+            border-width: 2px 0 0 2px;
+        }
+
+        .corner-tr {
+            top: -1px;
+            right: -1px;
+            border-width: 2px 2px 0 0;
+        }
+
+        .corner-bl {
+            bottom: -1px;
+            left: -1px;
+            border-width: 0 0 2px 2px;
+        }
+
+        .corner-br {
+            bottom: -1px;
+            right: -1px;
+            border-width: 0 2px 2px 0;
+        }
+
+        .release-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .release h2 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .release-date {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            text-transform: uppercase;
+            padding-top: 4px;
+            white-space: nowrap;
+        }
+
+        .downloads {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .dl-card {
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: border-color 0.2s, background 0.2s;
+            position: relative;
+        }
+
+        .dl-card.primary {
+            border-color: rgba(125, 182, 177, 0.22);
+            background: var(--accent-dim);
+        }
+
+        .dl-card:not(.primary):hover {
+            background: rgba(125, 18, 38, 0.03);
+            border-color: rgba(125, 18, 38, 0.1);
+        }
+
+        .dl-platform {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .dl-icon {
+            font-size: 17px;
+            line-height: 1;
+        }
+
+        .dl-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .you-badge {
+            font-family: 'DM Mono', monospace;
+            font-size: 8px;
+            font-weight: 400;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 2px 7px;
+            border-radius: 100px;
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .dl-desc {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            font-weight: 300;
+            color: var(--muted);
+            line-height: 1.65;
+            letter-spacing: 0.02em;
+        }
+
+        .dl-links {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .dl-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 13px;
+            border-radius: 2px;
+            text-decoration: none;
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.05em;
+            transition: opacity 0.15s, transform 0.15s;
+            cursor: pointer;
+        }
+
+        .dl-btn:hover {
+            opacity: 0.75;
+            transform: translateX(2px);
+        }
+
+        .dl-btn:active {
+            transform: scale(0.98);
+        }
+
+        .dl-btn.main {
+            background: var(--accent);
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .dl-btn.alt {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-weight: 300;
+        }
+
+        .dl-btn.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .dl-btn .arrow {
+            margin-left: auto;
+            opacity: 0.55;
+        }
+
+        .loading {
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            color: var(--muted);
+            letter-spacing: 0.08em;
+            text-align: center;
+            padding: 60px 0;
+            animation: fade-up 0.4s both;
+        }
+
+        @keyframes fade-up {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes dot-pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.4;
+                transform: scale(0.65);
+            }
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+        }
+
+        @keyframes scan {
+            0% {
+                top: -2px;
+            }
+
+            100% {
+                top: 100vh;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .release {
+                padding: 28px 24px;
+            }
+
+            .downloads {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-glow"></div>
+    <div class="scan-line"></div>
+
+    <div class="wrap">
+        <header>
+            <div class="status-pill">
+                <span class="status-dot"></span>
+                FRC Team 5171
+            </div>
+            <h1>App <span>Releases</span></h1>
+            <p class="subtitle">Download the latest member app for your platform.</p>
+            <div class="os-banner" id="osBanner">— detecting platform…</div>
+        </header>
+
+        <div id="releases">
+            <div class="loading">loading releases…</div>
+        </div>
+    </div>
+
+    <script>
+        const repoOwner = "team5171";
+        const repoName = "team5171.github.io";
+
+        const ua = navigator.userAgent;
+        const isMac = /Mac|iPhone|iPad|iPod/.test(ua) && !/Windows/.test(ua);
+        const isWindows = /Windows/.test(ua);
+
+        const banner = document.getElementById('osBanner');
+        if (isMac) banner.textContent = '— macOS detected · your download is highlighted';
+        else if (isWindows) banner.textContent = '— Windows detected · your download is highlighted';
+        else banner.textContent = '— platform unknown · choose your OS below';
+
+        async function fetchReleases() {
+            const res = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/releases`);
+            const releases = await res.json();
+            const container = document.getElementById('releases');
+            container.innerHTML = '';
+
+            if (!Array.isArray(releases) || releases.length === 0) {
+                container.innerHTML = '<div class="loading">no releases found.</div>';
+                return;
+            }
+
+            releases.forEach((rel, i) => {
+                const findUrl = name => {
+                    const a = rel.assets.find(x => x.name.toLowerCase() === name.toLowerCase());
+                    return a ? a.browser_download_url : null;
+                };
+
+                const dmgUrl = findUrl('member.dmg');
+                const exeUrl = findUrl('member.exe');
+                const macZip = rel.assets.find(x => x.name.toLowerCase().includes('mac') && x.name.endsWith('.zip'));
+                const winZip = rel.assets.find(x => x.name.toLowerCase().includes('win') && x.name.endsWith('.zip'));
+
+                const corners = `
+      <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div><div class="corner corner-br"></div>`;
+
+                const macCard = `
+      <div class="dl-card ${isMac ? 'primary' : ''}">
+        ${corners}
+        <div class="dl-platform">
+          <span class="dl-icon">🍎</span>
+          <span class="dl-name">macOS${isMac ? ' <span class="you-badge">your os</span>' : ''}</span>
+        </div>
+        <p class="dl-desc">Standard DMG installer<br>or portable ZIP.</p>
+        <div class="dl-links">
+          ${dmgUrl
+                        ? `<a class="dl-btn main" href="${dmgUrl}" download>⬇ member.dmg <span class="arrow">→</span></a>`
+                        : `<span class="dl-btn main disabled">⬇ member.dmg</span>`}
+          ${macZip ? `<a class="dl-btn alt" href="${macZip.browser_download_url}" download>⬇ portable .zip</a>` : ''}
+        </div>
+      </div>`;
+
+                const winCard = `
+      <div class="dl-card ${isWindows ? 'primary' : ''}">
+        ${corners}
+        <div class="dl-platform">
+          <span class="dl-icon">🪟</span>
+          <span class="dl-name">Windows${isWindows ? ' <span class="you-badge">your os</span>' : ''}</span>
+        </div>
+        <p class="dl-desc">One-click EXE installer<br>or portable ZIP.</p>
+        <div class="dl-links">
+          ${exeUrl
+                        ? `<a class="dl-btn main" href="${exeUrl}" download>⬇ member.exe <span class="arrow">→</span></a>`
+                        : `<span class="dl-btn main disabled">⬇ member.exe</span>`}
+          ${winZip ? `<a class="dl-btn alt" href="${winZip.browser_download_url}" download>⬇ portable .zip</a>` : ''}
+        </div>
+      </div>`;
+
+                const div = document.createElement('div');
+                div.className = 'release';
+                div.style.animationDelay = `${0.2 + i * 0.1}s`;
+                div.innerHTML = `
+      ${corners}
+      <div class="release-header">
+        <h2>${rel.name || rel.tag_name}</h2>
+        <span class="release-date">${new Date(rel.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+      </div>
+      <div class="downloads">
+        ${isMac ? macCard + winCard : winCard + macCard}
+      </div>`;
+                container.appendChild(div);
+            });
+        }
+
+        fetchReleases().catch(() => {
+            document.getElementById('releases').innerHTML =
+                '<div class="loading">failed to load releases.</div>';
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Modal</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #1a1c1e;
+            --glass-bg: #2d3135;
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent-primary: #7db6b1;
+            --accent-secondary: #5da099;
+            --text-main: #e6edf3;
+            --text-dim: #8b949e;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: transparent;
+            color: var(--text-main);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .modal-overlay {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .countdown-modal {
+            width: 90%;
+            max-width: 520px;
+            padding: 40px;
+            border-radius: 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            text-align: center;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-dim);
+        }
+
+        .close-btn:hover {
+            color: white;
+        }
+
+        .countdown-timer {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 20px 0;
+            color: var(--accent-primary);
+        }
+
+        .countdown-label {
+            font-size: 1.1rem;
+        }
+
+        .countdown-hint {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="modal-overlay" id="modal">
+        <div class="countdown-modal" id="countdownCard">
+            <div class="countdown-label">Loading Calendar...</div>
+            <div class="countdown-timer" id="timer"></div>
+            <div class="countdown-hint" id="hint"></div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            authWorker: "https://team5171pat.veerbajaj11.workers.dev"
+        };
+
+        let countdownInterval;
+
+        // --- FETCH ICS ---
+        async function fetchICalData() {
+            try {
+                const res = await fetch(`${CONFIG.authWorker}/calendar`);
+                if (!res.ok) throw new Error("Calendar fetch failed");
+
+                const text = await res.text();
+                const events = parseICS(text);
+                const nextEvent = getNextEvent(events);
+
+                if (nextEvent) {
+                    startCountdown(nextEvent);
+                } else {
+                    showMessage("No upcoming events found.");
+                }
+
+            } catch (err) {
+                showError();
+            }
+        }
+
+        // --- PARSE ICS ---
+        function parseICS(data) {
+            const events = [];
+            const lines = data.split(/\r\n|\n|\r/);
+            let current = null;
+
+            for (const line of lines) {
+                if (line.startsWith("BEGIN:VEVENT")) current = {};
+                else if (line.startsWith("END:VEVENT")) {
+                    if (current) events.push(current);
+                    current = null;
+                } else if (current) {
+                    const [key, ...v] = line.split(":");
+                    const value = v.join(":");
+                    if (!key || !value) continue;
+
+                    if (key.includes("DTSTART")) current.start = value.trim();
+                    if (key.includes("SUMMARY")) current.summary = value.trim();
+                    if (key.includes("DESCRIPTION")) current.description = value.trim();
+                }
+            }
+            return events;
+        }
+
+        // --- FIND NEXT EVENT ---
+        function getNextEvent(events) {
+            const now = new Date();
+
+            return events.map(e => {
+                if (!e.start) return null;
+
+                let date;
+                const d = e.start;
+
+                if (d.length === 8) {
+                    date = new Date(`${d.substring(0, 4)}-${d.substring(4, 6)}-${d.substring(6, 8)}`);
+                } else {
+                    const y = d.substring(0, 4),
+                        m = d.substring(4, 6),
+                        day = d.substring(6, 8),
+                        h = d.substring(9, 11),
+                        min = d.substring(11, 13),
+                        s = d.substring(13, 15);
+
+                    date = d.endsWith("Z")
+                        ? new Date(Date.UTC(y, m - 1, day, h, min, s))
+                        : new Date(y, m - 1, day, h, min, s);
+                }
+
+                return { ...e, date };
+
+            }).filter(e => e && e.date > now)
+                .sort((a, b) => a.date - b.date)[0];
+        }
+
+        // --- START COUNTDOWN ---
+        function startCountdown(event) {
+            const timer = document.getElementById("timer");
+            const label = document.querySelector(".countdown-label");
+            const hint = document.getElementById("hint");
+            const card = document.getElementById("countdownCard");
+
+            label.textContent = event.summary || "Next Event";
+
+            // Extract URL
+            const desc = event.description || "";
+            const urlMatch = desc.match(/https?:\/\/[^\s\\]+/);
+            const targetUrl = urlMatch ? urlMatch[0] : null;
+
+            if (targetUrl) {
+                hint.textContent = "Click to view event details";
+                card.onclick = () => window.open(targetUrl, "_blank");
+            }
+
+            function update() {
+                const now = new Date().getTime();
+                const distance = event.date.getTime() - now;
+
+                if (distance <= 0) {
+                    clearInterval(countdownInterval);
+                    timer.textContent = "Event Started!";
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                timer.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            }
+
+            update();
+            countdownInterval = setInterval(update, 1000);
+        }
+
+        // --- UI HELPERS ---
+        function showMessage(msg) {
+            document.querySelector(".countdown-label").textContent = msg;
+        }
+
+        function showError() {
+            document.querySelector(".countdown-label").innerHTML =
+                `Failed to load calendar.<br><a href="https://lu.ma/team5171" target="_blank" style="color:var(--accent-primary)">View on Luma →</a>`;
+        }
+
+        window.addEventListener("DOMContentLoaded", fetchICalData);
+    </script>
+
+</body>
+
+</html>

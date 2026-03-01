@@ -20,15 +20,16 @@
 
         body {
             font-family: 'Lato', sans-serif;
-            background-color: #f8f9fa;
+            background-color: #121416;
+            color: #e6edf3;
         }
 
         .code-font {
             font-family: 'Source Code Pro', monospace;
         }
 
-        .hero-gradient {
-            background: linear-gradient(135deg, #212121 0%, #37474f 100%);
+        .hero-solid {
+            background-color: #1a1c1e;
         }
 
         .card-hover {
@@ -47,13 +48,14 @@
     </style>
 </head>
 
-<body class="text-gray-900">
+<body class="text-gray-100">
 
     <!-- FULL PAGE APP OVERLAY -->
     <div id="appOverlay"
-        class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[999] transition-opacity duration-300 overlay-hidden">
+        class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[999] transition-opacity duration-300 overlay-hidden">
 
-        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-6 p-10 text-center relative">
+        <div
+            class="bg-[#1a1c1e] text-white rounded-2xl shadow-2xl max-w-lg w-full mx-6 p-10 text-center relative border border-gray-800">
 
             <button onclick="hideOverlay()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-900 transition">
                 ✕
@@ -69,7 +71,7 @@
                 Team 5171 Desktop App Available
             </h2>
 
-            <p class="text-gray-600 text-sm mb-6">
+            <p class="text-gray-400 text-sm mb-6">
                 The Team 5171 app is available for macOS and Windows.
                 Install it for a faster, native experience.
             </p>
@@ -81,7 +83,7 @@
                 </a>
 
                 <button onclick="hideOverlay()"
-                    class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition">
+                    class="px-6 py-3 bg-gray-800 text-gray-300 rounded-lg font-semibold hover:bg-gray-700 transition">
                     Continue to Site
                 </button>
             </div>
@@ -89,7 +91,7 @@
     </div>
 
     <!-- NORMAL SITE CONTENT -->
-    <header class="hero-gradient text-white py-16 px-6 relative overflow-hidden shadow-2xl">
+    <header class="hero-solid text-white py-16 px-6 relative overflow-hidden shadow-2xl border-b border-gray-800">
         <div class="max-w-5xl mx-auto text-center relative z-10">
             <img src="https://github.com/team5171.png" alt="Team 5171 Logo"
                 class="w-28 h-28 mx-auto rounded-full border-4 border-[#7db6b1] bg-white shadow-xl mb-6">
@@ -106,92 +108,98 @@
 
     <main class="max-w-6xl mx-auto py-12 px-6">
 
+        <!-- Countdown Integration -->
+        <div class="mb-12">
+            <iframe src="countdown.html" class="w-full h-[400px] border-none rounded-2xl shadow-lg"
+                title="Upcoming Events Countdown"></iframe>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
             <a href="https://team5171.github.io/2026docs" target="_blank"
-                class="card-hover flex items-start p-6 bg-white border-l-4 border-blue-500 rounded-xl shadow-sm group">
-                <div class="p-3 bg-blue-50 rounded-lg mr-5 group-hover:bg-blue-500 transition-colors">
-                    <i data-lucide="terminal" class="w-7 h-7 text-blue-600 group-hover:text-white"></i>
+                class="card-hover flex items-start p-6 bg-[#1a1c1e] border-l-4 border-blue-500 rounded-xl shadow-lg group">
+                <div class="p-3 bg-blue-900/20 rounded-lg mr-5 group-hover:bg-blue-500 transition-colors">
+                    <i data-lucide="terminal" class="w-7 h-7 text-blue-400 group-hover:text-white"></i>
                 </div>
                 <div>
-                    <h2 class="font-bold text-lg text-gray-800">Documentation</h2>
-                    <p class="text-sm text-gray-500 mt-1">2026 documentation.</p>
+                    <h2 class="font-bold text-lg text-gray-100">Documentation</h2>
+                    <p class="text-sm text-gray-400 mt-1">2026 documentation.</p>
                 </div>
             </a>
 
             <a href="https://docs.google.com/document/d/1Fsams-tIOZhHUrwUV1q8RYRz_24t8mEAg82eP7mos2c/edit?usp=sharing"
                 target="_blank"
-                class="card-hover flex items-start p-6 bg-white border-l-4 border-[#7db6b1] rounded-xl shadow-sm group">
-                <div class="p-3 bg-teal-50 rounded-lg mr-5 group-hover:bg-[#7db6b1] transition-colors">
+                class="card-hover flex items-start p-6 bg-[#1a1c1e] border-l-4 border-[#7db6b1] rounded-xl shadow-lg group">
+                <div class="p-3 bg-[#7db6b1]/20 rounded-lg mr-5 group-hover:bg-[#7db6b1] transition-colors">
                     <i data-lucide="book-open" class="w-7 h-7 text-[#7db6b1] group-hover:text-white"></i>
                 </div>
                 <div>
-                    <h2 class="font-bold text-lg text-gray-800">Team Handbook</h2>
-                    <p class="text-sm text-gray-500 mt-1">Information, safety, and our team expectations.</p>
+                    <h2 class="font-bold text-lg text-gray-100">Team Handbook</h2>
+                    <p class="text-sm text-gray-400 mt-1">Information, safety, and our team expectations.</p>
                 </div>
             </a>
 
             <a href="https://www.firstinspires.org/resources/library/frc/season-materials?view=calendar" target="_blank"
-                class="card-hover flex items-start p-6 bg-white border-l-4 border-orange-500 rounded-xl shadow-sm group">
-                <div class="p-3 bg-orange-50 rounded-lg mr-5 group-hover:bg-orange-500 transition-colors">
-                    <i data-lucide="layers" class="w-7 h-7 text-orange-600 group-hover:text-white"></i>
+                class="card-hover flex items-start p-6 bg-[#1a1c1e] border-l-4 border-orange-500 rounded-xl shadow-lg group">
+                <div class="p-3 bg-orange-900/20 rounded-lg mr-5 group-hover:bg-orange-500 transition-colors">
+                    <i data-lucide="layers" class="w-7 h-7 text-orange-400 group-hover:text-white"></i>
                 </div>
                 <div>
-                    <h2 class="font-bold text-lg text-gray-800">Season Materials</h2>
-                    <p class="text-sm text-gray-500 mt-1">Kickoff docs, game manuals, and other info.</p>
+                    <h2 class="font-bold text-lg text-gray-100">Season Materials</h2>
+                    <p class="text-sm text-gray-400 mt-1">Kickoff docs, game manuals, and other info.</p>
                 </div>
             </a>
 
             <a href="https://team5171.github.io/rsvp" target="_blank"
-                class="card-hover flex items-start p-6 bg-white border-l-4 border-green-500 rounded-xl shadow-sm group">
-                <div class="p-3 bg-green-50 rounded-lg mr-5 group-hover:bg-green-500 transition-colors">
-                    <i data-lucide="calendar-check" class="w-7 h-7 text-green-600 group-hover:text-white"></i>
+                class="card-hover flex items-start p-6 bg-[#1a1c1e] border-l-4 border-green-500 rounded-xl shadow-lg group">
+                <div class="p-3 bg-green-900/20 rounded-lg mr-5 group-hover:bg-green-500 transition-colors">
+                    <i data-lucide="calendar-check" class="w-7 h-7 text-green-400 group-hover:text-white"></i>
                 </div>
                 <div>
-                    <h2 class="font-bold text-lg text-gray-800">Event RSVP</h2>
-                    <p class="text-sm text-gray-500 mt-1">Confirm your spot for upcoming build sessions.</p>
-                    <p class="text-sm text-gray-500 mt-1">This link takes you to the next one.</p>
+                    <h2 class="font-bold text-lg text-gray-100">Event RSVP</h2>
+                    <p class="text-sm text-gray-400 mt-1">Confirm your spot for upcoming build sessions.</p>
+                    <p class="text-sm text-gray-400 mt-1">This link takes you to the next one.</p>
                 </div>
             </a>
 
             <a href="https://team5171.github.io/checkin" target="_blank"
-                class="card-hover flex items-start p-6 bg-white border-l-4 border-red-500 rounded-xl shadow-sm group">
-                <div class="p-3 bg-red-50 rounded-lg mr-5 group-hover:bg-red-500 transition-colors">
-                    <i data-lucide="map-pin" class="w-7 h-7 text-red-600 group-hover:text-white"></i>
+                class="card-hover flex items-start p-6 bg-[#1a1c1e] border-l-4 border-red-500 rounded-xl shadow-lg group">
+                <div class="p-3 bg-red-900/20 rounded-lg mr-5 group-hover:bg-red-500 transition-colors">
+                    <i data-lucide="map-pin" class="w-7 h-7 text-red-400 group-hover:text-white"></i>
                 </div>
                 <div>
-                    <h2 class="font-bold text-lg text-gray-800">Check-In</h2>
-                    <p class="text-sm text-gray-500 mt-1">Check-In for the Robotics computers</p>
+                    <h2 class="font-bold text-lg text-gray-100">Check-In</h2>
+                    <p class="text-sm text-gray-400 mt-1">Check-In for the Robotics computers</p>
 
                 </div>
             </a>
 
             <a href="https://www.firstinspires.org/programs/youth-registration" target="_blank"
-                class="card-hover flex items-start p-6 bg-white border-l-4 border-purple-500 rounded-xl shadow-sm group">
-                <div class="p-3 bg-purple-50 rounded-lg mr-5 group-hover:bg-purple-500 transition-colors">
-                    <i data-lucide="shield-check" class="w-7 h-7 text-purple-600 group-hover:text-white"></i>
+                class="card-hover flex items-start p-6 bg-[#1a1c1e] border-l-4 border-purple-500 rounded-xl shadow-lg group">
+                <div class="p-3 bg-purple-900/20 rounded-lg mr-5 group-hover:bg-purple-500 transition-colors">
+                    <i data-lucide="shield-check" class="w-7 h-7 text-purple-400 group-hover:text-white"></i>
                 </div>
                 <div>
-                    <h2 class="font-bold text-lg text-gray-800">Youth Registration</h2>
-                    <p class="text-sm text-gray-500 mt-1">Complete your FIRST registration.</p>
+                    <h2 class="font-bold text-lg text-gray-100">Youth Registration</h2>
+                    <p class="text-sm text-gray-400 mt-1">Complete your FIRST registration.</p>
                 </div>
             </a>
 
         </div>
 
-        <div class="mt-20 pt-10 border-t border-gray-200">
+        <div class="mt-20 pt-10 border-t border-gray-800">
             <h3 class="text-center text-xs font-bold text-gray-400 tracking-[0.3em] uppercase mb-10">Other Notes</h3>
             <div class="flex flex-wrap justify-center gap-6 md:gap-12">
                 <a href="http://team5171.com"
-                    class="text-sm font-medium text-gray-600 hover:text-[#7db6b1] transition-colors">Home</a>
+                    class="text-sm font-medium text-gray-400 hover:text-[#7db6b1] transition-colors">Home</a>
                 <a href="https://www.firstinspires.org/"
-                    class="text-sm font-medium text-gray-600 hover:text-[#7db6b1] transition-colors">FIRST Robotics</a>
+                    class="text-sm font-medium text-gray-400 hover:text-[#7db6b1] transition-colors">FIRST Robotics</a>
                 <a href="https://www.york.org/"
-                    class="text-sm font-medium text-gray-600 hover:text-[#7db6b1] transition-colors">York School</a>
+                    class="text-sm font-medium text-gray-400 hover:text-[#7db6b1] transition-colors">York School</a>
                 <a href="https://drive.google.com/file/d/14ISSX4VzSgb4vgH6r-kA8THuxGXQBrBT/view?usp=sharing"
-                    class="text-sm font-medium text-gray-600 hover:text-[#7db6b1] transition-colors">Sponsor Info</a>
+                    class="text-sm font-medium text-gray-400 hover:text-[#7db6b1] transition-colors">Sponsor Info</a>
                 <a href="https://www.york.org/giving/ways-to-give"
-                    class="text-sm font-medium text-gray-600 hover:text-[#7db6b1] transition-colors font-bold">Donate</a>
+                    class="text-sm font-medium text-gray-400 hover:text-[#7db6b1] transition-colors font-bold">Donate</a>
             </div>
         </div>
 
