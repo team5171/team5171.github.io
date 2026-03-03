@@ -99,6 +99,9 @@
             <h1 class="text-5xl font-light tracking-tight mb-2 uppercase">
                 Team <span class="font-bold text-[#7db6b1]">5171</span>
             </h1>
+            <p id="user-greeting" class="text-[#7db6b1] text-2xl font-bold mb-2 hidden">
+                Welcome, <span id="user-name"></span>!
+            </p>
             <p class="text-gray-400 text-sm md:text-base code-font tracking-widest uppercase mb-4">
                 Member Dashboard
             </p>
@@ -251,6 +254,27 @@
 
         function hideOverlay() {
             document.getElementById("appOverlay").classList.add("overlay-hidden");
+        }
+
+        function getParamAnywhere(nameKey) {
+            const parts = window.location.href.split(/[?&]/);
+            for (let i = 1; i < parts.length; i++) {
+                const pair = parts[i].split('=');
+                if (pair[0] === nameKey && pair.length > 1) {
+                    return decodeURIComponent(pair[1].split('#')[0].replace(/\+/g, " "));
+                }
+            }
+            return null;
+        }
+
+        const userName = getParamAnywhere('name') || getParamAnywhere('urlencodedname');
+        if (userName) {
+            const greetingEl = document.getElementById('user-greeting');
+            const nameEl = document.getElementById('user-name');
+            if (greetingEl && nameEl) {
+                nameEl.textContent = userName;
+                greetingEl.classList.remove('hidden');
+            }
         }
 
         const params = new URLSearchParams(window.location.search);
