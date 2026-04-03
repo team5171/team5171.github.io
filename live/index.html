@@ -49,8 +49,8 @@
 
     <script>
         // Stream URLs
-        const day1Url = "https://www.youtube.com/watch?v=teZtwE8bQqU";
-        const day2Url = "https://www.youtube.com/watch?v=eNgH7MA9oDE";
+        const day1Url = "https://www.youtube.com/live/i_hlfB1pmCE?si=MjKqyNT-Qjdi3U5n";
+        const day2Url = "https://www.youtube.com/live/J_arfeUMCl4?si=nrKFLL5zsOeehOZL";
 
         function redirectToStream() {
             const now = new Date();
@@ -61,7 +61,7 @@
             let targetUrl = day1Url; // Default to Day 1
 
             // Logic: Switch to Day 2 if it is March 15, 2026 or later
-            if (year >= 2026 && month >= 3 && day >= 15) {
+            if (year >= 2026 && month >= 4 && day >= 4) {
                 targetUrl = day2Url;
             }
 
