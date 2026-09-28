@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Highlights - 2026 CAETB</title>
+    <style>
+        :root {
+            --bg-color: #0d0d12;
+            --card-bg: #1a1a24;
+            --accent-color: #6366f1;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-radius: 12px;
+            --spacing: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        header {
+            max-width: 1200px;
+            margin: 0 auto 60px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 32px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .card-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .card-body {
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .video-container iframe, 
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .video-label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 500;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+        }
+
+        .video-label svg {
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+            display: inline-block;
+        }
+
+        .badge {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent-color);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        #loading {
+            text-align: center;
+            padding: 100px;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <h1>Match Archive</h1>
+        <p>A collection of matches from 2026 CAETB featuring YouTube highlights and local recordings.</p>
+    </header>
+
+    <div id="loading">Gathering match data...</div>
+
+    <main class="container" id="match-container">
+        <!-- Cards will be populated here -->
+    </main>
+
+    <script>
+        const localVideos = [
+            'qm4.mov', 'qm12.mov', 'qm18.mov', 'qm22.mov', 'qm33.mov', 'qm39.mov'
+        ];
+
+        async function init() {
+            const container = document.getElementById('match-container');
+            const loading = document.getElementById('loading');
+
+            try {
+                const response = await fetch('config.json');
+                const data = await response.json();
+                const matches = data["2026caetb"];
+
+                loading.style.display = 'none';
+
+                matches.forEach(match => {
+                    const card = createMatchCard(match);
+                    container.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error('Error loading config:', error);
+                loading.textContent = 'Failed to load match data. Check config.json.';
+            }
+        }
+
+        function createMatchCard(match) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            // Format YouTube URL to embed format if needed
+            let youtubeEmbed = match.youtube;
+            if (youtubeEmbed.includes('/v/')) {
+                youtubeEmbed = youtubeEmbed.replace('/v/', '/embed/');
+            }
+
+            const localVidName = `${match.id}.mov`;
+            const hasLocal = localVideos.includes(localVidName);
+
+            let bodyContent = `
+                <div class="video-label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
+                    YouTube Highlight
+                </div>
+                <div class="video-container">
+                    <iframe src="${youtubeEmbed}" allowfullscreen></iframe>
+                </div>
+            `;
+
+            if (hasLocal) {
+                bodyContent += `
+                    <div class="video-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                        Local Footage
+                    </div>
+                    <div class="video-container">
+                        <video controls preload="none">
+                            <source src="vids/${localVidName}" type="video/quicktime">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                `;
+            }
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <span class="card-title">${match.id}</span>
+                    ${hasLocal ? '<span class="badge">Local Available</span>' : ''}
+                </div>
+                <div class="card-body">
+                    ${bodyContent}
+                </div>
+            `;
+
+            return card;
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
