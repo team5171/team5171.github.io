@@ -9,43 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Source+Code+Pro:wght@400;700&display=swap');
-
-        :root {
-            --brand-bg: #212121;
-            --brand-slate: #37474f;
-            --brand-accent: #7db6b1;
-        }
-
-        body {
-            font-family: 'Lato', sans-serif;
-            background-color: #121416;
-            color: #e6edf3;
-        }
-
-        .code-font {
-            font-family: 'Source Code Pro', monospace;
-        }
-
-        .hero-solid {
-            background-color: #1a1c1e;
-        }
-
-        .card-hover {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .overlay-hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body class="text-gray-100">
@@ -119,14 +83,14 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
-            <a href="https://team5171.github.io/2026docs" target="_blank"
+            <a href="https://docs.team5171.com/" target="_blank"
                 class="card-hover flex items-start p-6 bg-[#1a1c1e] border-l-4 border-blue-500 rounded-xl shadow-lg group">
                 <div class="p-3 bg-blue-900/20 rounded-lg mr-5 group-hover:bg-blue-500 transition-colors">
                     <i data-lucide="terminal" class="w-7 h-7 text-blue-400 group-hover:text-white"></i>
                 </div>
                 <div>
                     <h2 class="font-bold text-lg text-gray-100">Documentation</h2>
-                    <p class="text-sm text-gray-400 mt-1">2026 documentation.</p>
+                    <p class="text-sm text-gray-400 mt-1">Team 5171 documentation.</p>
                 </div>
             </a>
 

@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Source+Code+Pro:wght@400;700&family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap');
+
+:root {
+    /* Brand Theme Colors */
+    --brand-bg: #212121;
+    --brand-slate: #37474f;
+    --brand-accent: #7db6b1;
+    --brand-accent-bright: #9ce2db;
+    --brand-accent-secondary: #5da099;
+
+    /* Theme Surfaces & Borders */
+    --bg-dark: #121416;
+    --surface: #1a1c1e;
+    --surface-elevated: #1e2124;
+    --surface-glass: rgba(45, 49, 53, 0.7);
+    --border: rgba(255, 255, 255, 0.1);
+
+    /* Text Colors */
+    --text-main: #e6edf3;
+    --text-dim: #94a3b8;
+    --text-muted: #8b949e;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Lato', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Typography Helpers */
+.code-font {
+    font-family: 'Source Code Pro', monospace;
+}
+
+.outfit-font {
+    font-family: 'Outfit', sans-serif;
+}
+
+.inter-font {
+    font-family: 'Inter', sans-serif;
+}
+
+.syne-font {
+    font-family: 'Syne', sans-serif;
+}
+
+/* Common Layout & Component Utilities */
+.hero-solid {
+    background-color: var(--surface);
+}
+
+.card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.overlay-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Global Loader Animation */
+.loader {
+    border: 3px solid rgba(88, 166, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--brand-accent);
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
