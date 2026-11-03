@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authenticating... | Team 5171 Accounts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body class="bg-[#1a1c1e] text-white flex items-center justify-center min-h-screen">
+    <div class="text-center p-8 max-w-sm">
+        <div class="w-12 h-12 border-4 border-[#7db6b1]/20 border-t-[#7db6b1] rounded-full animate-spin mx-auto mb-4"></div>
+        <h2 class="text-xl font-bold mb-2">Connecting to Team 5171 Accounts...</h2>
+        <p id="callback-status" class="text-sm text-gray-400">Verifying authorization token...</p>
+    </div>
+
+    <script type="module">
+        import { Team5171Client } from '/website/5171-auth-client.js';
+
+        const client = new Team5171Client({
+            clientId: 'go_dashboard',
+            gatewayUrl: window.TEAM5171_GATEWAY_URL || 'https://team5171-auth-gateway.yorkroboticsfrc.workers.dev'
+        });
+
+        const statusEl = document.getElementById('callback-status');
+
+        try {
+            await client.handleCallback();
+            statusEl.textContent = 'Success! Redirecting to dashboard...';
+            const target = sessionStorage.getItem('team5171_pre_auth_redirect') || '/';
+            sessionStorage.removeItem('team5171_pre_auth_redirect');
+            window.location.href = target;
+        } catch (err) {
+            console.error('OAuth callback failed:', err);
+            statusEl.innerHTML = `<span class="text-red-400">Authentication failed: ${err.message}</span><br><a href="/" class="text-[#7db6b1] underline mt-4 inline-block">Return to Dashboard</a>`;
+        }
+    </script>
+</body>
+
+</html>
+

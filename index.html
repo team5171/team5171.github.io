@@ -56,6 +56,31 @@
 
     <!-- NORMAL SITE CONTENT -->
     <header class="hero-solid text-white py-16 px-6 relative overflow-hidden shadow-2xl border-b border-gray-800">
+        <!-- Auth Bar Top-Right -->
+        <div class="absolute top-6 right-6 z-20 flex items-center gap-3">
+            <div id="auth-logged-out" class="flex items-center">
+                <button id="login-button" type="button"
+                    class="flex items-center gap-2 px-4 py-2 bg-[#1a1c1e]/80 hover:bg-[#1a1c1e] text-sm text-gray-200 border border-gray-700/80 hover:border-[#7db6b1] rounded-xl backdrop-blur transition shadow-md group">
+                    <i data-lucide="log-in" class="w-4 h-4 text-[#7db6b1] group-hover:scale-110 transition-transform"></i>
+                    <span>Sign In</span>
+                </button>
+            </div>
+
+            <div id="auth-logged-in" class="hidden flex items-center gap-3">
+                <div class="flex items-center gap-2.5 px-3.5 py-1.5 bg-[#1a1c1e]/80 border border-gray-700 rounded-xl backdrop-blur">
+                    <div id="auth-avatar"
+                        class="w-7 h-7 rounded-full bg-[#7db6b1]/20 text-[#7db6b1] font-bold text-xs flex items-center justify-center border border-[#7db6b1]/40">
+                        U
+                    </div>
+                    <span id="auth-user-display" class="text-xs font-semibold text-gray-200 max-w-[120px] truncate">Member</span>
+                </div>
+                <button id="logout-button" type="button" title="Sign Out"
+                    class="p-2 bg-[#1a1c1e]/80 hover:bg-red-500/10 hover:border-red-500/40 text-gray-400 hover:text-red-400 border border-gray-700 rounded-xl transition">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+
         <div class="max-w-5xl mx-auto text-center relative z-10">
             <img src="https://github.com/team5171.png" alt="Team 5171 Logo"
                 class="w-28 h-28 mx-auto rounded-full border-4 border-[#7db6b1] bg-white shadow-xl mb-6">
@@ -141,6 +166,17 @@
                 </div>
             </a>
 
+            <a href="https://accounts.team5171.com" target="_blank"
+                class="card-hover flex items-start p-6 bg-[#1a1c1e] border-l-4 border-cyan-500 rounded-xl shadow-lg group">
+                <div class="p-3 bg-cyan-900/20 rounded-lg mr-5 group-hover:bg-cyan-500 transition-colors">
+                    <i data-lucide="user-check" class="w-7 h-7 text-cyan-400 group-hover:text-white"></i>
+                </div>
+                <div>
+                    <h2 class="font-bold text-lg text-gray-100">Team Accounts Hub</h2>
+                    <p class="text-sm text-gray-400 mt-1">Manage single sign-on profile & permissions.</p>
+                </div>
+            </a>
+
             <a href="https://www.firstinspires.org/programs/youth-registration" target="_blank"
                 class="card-hover flex items-start p-6 bg-[#1a1c1e] border-l-4 border-purple-500 rounded-xl shadow-lg group">
                 <div class="p-3 bg-purple-900/20 rounded-lg mr-5 group-hover:bg-purple-500 transition-colors">
@@ -209,17 +245,81 @@
             ✕
         </button>
     </div>
-    <script>
+    <script type="module">
+        import { Team5171Client } from '/website/5171-auth-client.js';
+
         lucide.createIcons();
 
-        function showOverlay() {
-            document.getElementById("appOverlay").classList.remove("overlay-hidden");
+        // Initialize 5171 Auth Client
+        const auth = new Team5171Client({
+            clientId: 'go_dashboard',
+            accountsUrl: 'https://accounts.team5171.com',
+            gatewayUrl: 'https://team5171-auth-gateway.yorkroboticsfrc.workers.dev',
+            redirectUri: `${window.location.origin}${window.location.pathname}`
+        });
+
+        // Expose to window for app wrapper or console access
+        window.team5171Auth = auth;
+
+        // Elements
+        const loggedOutEl = document.getElementById('auth-logged-out');
+        const loggedInEl = document.getElementById('auth-logged-in');
+        const userDisplayEl = document.getElementById('auth-user-display');
+        const avatarEl = document.getElementById('auth-avatar');
+        const loginBtn = document.getElementById('login-button');
+        const logoutBtn = document.getElementById('logout-button');
+        const greetingEl = document.getElementById('user-greeting');
+        const nameEl = document.getElementById('user-name');
+
+        function updateAuthUI() {
+            if (auth.isAuthenticated()) {
+                const user = auth.getUser();
+                const displayName = user?.name || user?.email?.split('@')[0] || 'Member';
+                if (loggedOutEl) loggedOutEl.classList.add('hidden');
+                if (loggedInEl) loggedInEl.classList.remove('hidden');
+                if (userDisplayEl) userDisplayEl.textContent = displayName;
+                if (avatarEl) avatarEl.textContent = displayName.charAt(0).toUpperCase();
+
+                if (greetingEl && nameEl) {
+                    nameEl.textContent = displayName;
+                    greetingEl.classList.remove('hidden');
+                }
+            } else {
+                if (loggedOutEl) loggedOutEl.classList.remove('hidden');
+                if (loggedInEl) loggedInEl.classList.add('hidden');
+            }
         }
 
-        function hideOverlay() {
-            document.getElementById("appOverlay").classList.add("overlay-hidden");
+        // Handle OAuth callback on the landing page if ?code= is present
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('code')) {
+            try {
+                await auth.handleCallback();
+                // Clean URL parameters while retaining ?app=true if present
+                const cleanParams = new URLSearchParams();
+                if (urlParams.get('app') === 'true') cleanParams.set('app', 'true');
+                const cleanQuery = cleanParams.toString() ? `?${cleanParams.toString()}` : '';
+                window.history.replaceState({}, document.title, window.location.pathname + cleanQuery);
+            } catch (err) {
+                console.error('OAuth Callback exchange failed:', err);
+            }
         }
 
+        if (loginBtn) {
+            loginBtn.addEventListener('click', () => {
+                auth.login();
+            });
+        }
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                auth.logout();
+                updateAuthUI();
+                if (greetingEl) greetingEl.classList.add('hidden');
+            });
+        }
+
+        // Check query param fallback (legacy support ?name=...)
         function getParamAnywhere(nameKey) {
             const parts = window.location.href.split(/[?&]/);
             for (let i = 1; i < parts.length; i++) {
@@ -231,21 +331,26 @@
             return null;
         }
 
-        const userName = getParamAnywhere('name') || getParamAnywhere('urlencodedname');
-        if (userName) {
-            const greetingEl = document.getElementById('user-greeting');
-            const nameEl = document.getElementById('user-name');
-            if (greetingEl && nameEl) {
-                nameEl.textContent = userName;
-                greetingEl.classList.remove('hidden');
-            }
+        const legacyName = getParamAnywhere('name') || getParamAnywhere('urlencodedname');
+        if (legacyName && greetingEl && nameEl) {
+            nameEl.textContent = legacyName;
+            greetingEl.classList.remove('hidden');
         }
 
-        const params = new URLSearchParams(window.location.search);
-        const isApp = params.get("app") === "true";
+        updateAuthUI();
 
+        // Overlay handling
+        window.showOverlay = function() {
+            document.getElementById("appOverlay")?.classList.remove("overlay-hidden");
+        };
+
+        window.hideOverlay = function() {
+            document.getElementById("appOverlay")?.classList.add("overlay-hidden");
+        };
+
+        const isApp = urlParams.get("app") === "true";
         if (!isApp) {
-            setTimeout(showOverlay, 400);
+            setTimeout(window.showOverlay, 400);
         }
     </script>
 
