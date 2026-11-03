@@ -59,8 +59,8 @@
         <!-- Auth Bar Top-Right -->
         <div class="absolute top-6 right-6 z-20 flex items-center gap-3">
             <div id="auth-logged-out" class="flex items-center">
-                <button id="login-button" type="button"
-                    class="flex items-center gap-2 px-4 py-2 bg-[#1a1c1e]/80 hover:bg-[#1a1c1e] text-sm text-gray-200 border border-gray-700/80 hover:border-[#7db6b1] rounded-xl backdrop-blur transition shadow-md group">
+                <button id="login-button" type="button" onclick="handleSignInClick()"
+                    class="cursor-pointer flex items-center gap-2 px-4 py-2 bg-[#1a1c1e]/80 hover:bg-[#1a1c1e] text-sm text-gray-200 border border-gray-700/80 hover:border-[#7db6b1] rounded-xl backdrop-blur transition shadow-md group">
                     <i data-lucide="log-in" class="w-4 h-4 text-[#7db6b1] group-hover:scale-110 transition-transform"></i>
                     <span>Sign In</span>
                 </button>
@@ -338,9 +338,22 @@
             }
         }
 
-        if (loginBtn) {
-            loginBtn.addEventListener('click', () => {
+        // Expose trigger directly to window for inline onclick & app wrapper
+        window.handleSignInClick = function() {
+            if (window.team5171Auth && typeof window.team5171Auth.login === 'function') {
                 window.team5171Auth.login();
+            } else {
+                const urlParams = new URLSearchParams(window.location.search);
+                const isApp = Boolean(window.__IS_ELECTRON__ || urlParams.get('app') === 'true');
+                const redirectUri = isApp ? 'team5171://oauth/callback' : window.location.origin + window.location.pathname;
+                window.location.href = `https://accounts.team5171.com/?client_id=app&redirect_uri=${encodeURIComponent(redirectUri)}`;
+            }
+        };
+
+        if (loginBtn) {
+            loginBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.handleSignInClick();
             });
         }
 
