@@ -1,14 +1,10 @@
-/**
- * Team 5171 Accounts — OAuth & Sandboxed Data Gateway Client SDK
- * FRC Team 5171 — Deus Ex Machina
- */
-
-export class Team5171Client {
+// Team 5171 Accounts — OAuth & Sandboxed Data Gateway Client SDK
+class Team5171Client {
     /**
      * @param {Object} options
-     * @param {string} [options.accountsUrl] - Accounts Portal URL (default: https://accounts.team5171.com)
+     * @param {string} [options.accountsUrl] - Accounts Portal URL
      * @param {string} [options.gatewayUrl] - Cloudflare Worker Gateway URL
-     * @param {string} options.clientId - Registered app client ID (e.g., 'go_dashboard', 'scouting_app')
+     * @param {string} options.clientId - Registered app client ID
      * @param {string} [options.clientSecret] - Registered client secret
      * @param {string} [options.redirectUri] - OAuth callback redirect URL
      * @param {string} [options.storageKey] - localStorage key prefix
@@ -22,18 +18,15 @@ export class Team5171Client {
         this.storageKey = options.storageKey || 'team5171_auth';
     }
 
-    /**
-     * Store auth data in localStorage
-     */
     _saveSession(session) {
         if (typeof window === 'undefined') return;
-        localStorage.setItem(this.storageKey, JSON.stringify(session));
+        try {
+            localStorage.setItem(this.storageKey, JSON.stringify(session));
+        } catch (e) {
+            console.warn('[Team5171Auth] Failed to write localStorage:', e);
+        }
     }
 
-    /**
-     * Get stored auth session
-     * @returns {Object|null}
-     */
     getSession() {
         if (typeof window === 'undefined') return null;
         try {
@@ -50,18 +43,10 @@ export class Team5171Client {
         }
     }
 
-    /**
-     * Check if currently authenticated
-     * @returns {boolean}
-     */
     isAuthenticated() {
         return !!this.getSession()?.access_token;
     }
 
-    /**
-     * Get current user details
-     * @returns {Object|null}
-     */
     getUser() {
         const session = this.getSession();
         if (!session) return null;
@@ -73,26 +58,18 @@ export class Team5171Client {
         };
     }
 
-    /**
-     * Get current access token
-     * @returns {string|null}
-     */
     getAccessToken() {
         return this.getSession()?.access_token || null;
     }
 
-    /**
-     * Redirect to the Team 5171 Accounts portal for sign in
-     * @param {Object} [params]
-     * @param {string} [params.state] - Optional CSRF/route state
-     * @param {string} [params.redirectUri] - Custom redirect URI
-     */
     login(params = {}) {
         if (typeof window === 'undefined') return;
 
         const redirectUri = params.redirectUri || this.redirectUri;
         const state = params.state || Math.random().toString(36).substring(2, 15);
-        sessionStorage.setItem(`${this.storageKey}_oauth_state`, state);
+        try {
+            sessionStorage.setItem(`${this.storageKey}_oauth_state`, state);
+        } catch (_) {}
 
         const url = new URL(this.accountsUrl);
         url.searchParams.set('client_id', this.clientId);
@@ -102,11 +79,6 @@ export class Team5171Client {
         window.location.href = url.toString();
     }
 
-    /**
-     * Handle the OAuth redirect callback with authorization code
-     * @param {string} [code] - Optional manual code string
-     * @returns {Promise<Object>} The session object
-     */
     async handleCallback(code = null) {
         if (typeof window === 'undefined') throw new Error('Browser environment required');
 
@@ -115,16 +87,14 @@ export class Team5171Client {
         const state = params.get('state');
 
         if (!authCode) {
-            throw new Error('No authorization code found in URL query parameters.');
+            throw new Error('No authorization code found');
         }
 
-        const savedState = sessionStorage.getItem(`${this.storageKey}_oauth_state`);
-        if (savedState && state && savedState !== state) {
-            console.warn('[Team5171Auth] OAuth state mismatch. Continuing cautiously.');
-        }
-        sessionStorage.removeItem(`${this.storageKey}_oauth_state`);
+        try {
+            const savedState = sessionStorage.getItem(`${this.storageKey}_oauth_state`);
+            sessionStorage.removeItem(`${this.storageKey}_oauth_state`);
+        } catch (_) {}
 
-        // Exchange code for token with Worker Gateway
         const res = await fetch(`${this.gatewayUrl}/oauth/token`, {
             method: 'POST',
             headers: {
@@ -153,7 +123,6 @@ export class Team5171Client {
             user_email: data.user_email || data.email || ''
         };
 
-        // Try extracting info from JWT if name/email weren't in top level response
         if (!session.user_name && data.access_token) {
             try {
                 const payloadPart = data.access_token.split('.')[1];
@@ -163,17 +132,13 @@ export class Team5171Client {
                     session.user_email = payload.email || payload.user_email || '';
                     if (!session.user_id && payload.sub) session.user_id = payload.sub;
                 }
-            } catch (_) { }
+            } catch (_) {}
         }
 
         this._saveSession(session);
         return session;
     }
 
-    /**
-     * Load sandboxed data for current app and user
-     * @returns {Promise<Object>} Firestore document response
-     */
     async loadUserData() {
         const token = this.getAccessToken();
         if (!token) throw new Error('User is not authenticated.');
@@ -192,11 +157,6 @@ export class Team5171Client {
         return await res.json();
     }
 
-    /**
-     * Save sandboxed data for current app and user
-     * @param {Object} documentPayload - e.g. { fields: { ... } }
-     * @returns {Promise<Object>}
-     */
     async saveUserData(documentPayload) {
         const token = this.getAccessToken();
         if (!token) throw new Error('User is not authenticated.');
@@ -218,16 +178,18 @@ export class Team5171Client {
         return await res.json();
     }
 
-    /**
-     * Logout and remove stored credentials
-     */
     logout() {
         if (typeof window === 'undefined') return;
-        localStorage.removeItem(this.storageKey);
+        try {
+            localStorage.removeItem(this.storageKey);
+        } catch (_) {}
     }
 }
 
 if (typeof window !== 'undefined') {
     window.Team5171Client = Team5171Client;
+}
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { Team5171Client };
 }
 

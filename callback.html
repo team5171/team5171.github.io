@@ -16,26 +16,26 @@
         <p id="callback-status" class="text-sm text-gray-400">Verifying authorization token...</p>
     </div>
 
-    <script type="module">
-        import { Team5171Client } from '/website/5171-auth-client.js';
-
-        const client = new Team5171Client({
+    <script src="website/5171-auth-client.js"></script>
+    <script>
+        const client = new window.Team5171Client({
             clientId: 'app',
             gatewayUrl: window.TEAM5171_GATEWAY_URL || 'https://team5171-auth-gateway.yorkroboticsfrc.workers.dev'
         });
 
         const statusEl = document.getElementById('callback-status');
 
-        try {
-            await client.handleCallback();
-            statusEl.textContent = 'Success! Redirecting to dashboard...';
-            const target = sessionStorage.getItem('team5171_pre_auth_redirect') || '/';
-            sessionStorage.removeItem('team5171_pre_auth_redirect');
-            window.location.href = target;
-        } catch (err) {
-            console.error('OAuth callback failed:', err);
-            statusEl.innerHTML = `<span class="text-red-400">Authentication failed: ${err.message}</span><br><a href="/" class="text-[#7db6b1] underline mt-4 inline-block">Return to Dashboard</a>`;
-        }
+        client.handleCallback()
+            .then(() => {
+                statusEl.textContent = 'Success! Redirecting to dashboard...';
+                const target = sessionStorage.getItem('team5171_pre_auth_redirect') || '/';
+                sessionStorage.removeItem('team5171_pre_auth_redirect');
+                window.location.href = target;
+            })
+            .catch((err) => {
+                console.error('OAuth callback failed:', err);
+                statusEl.innerHTML = `<span class="text-red-400">Authentication failed: ${err.message}</span><br><a href="/" class="text-[#7db6b1] underline mt-4 inline-block">Return to Dashboard</a>`;
+            });
     </script>
 </body>
 

@@ -245,9 +245,8 @@
             ✕
         </button>
     </div>
-    <script type="module">
-        import { Team5171Client } from '/website/5171-auth-client.js';
-
+    <script src="website/5171-auth-client.js"></script>
+    <script>
         lucide.createIcons();
 
         // Initialize 5171 Auth Client
@@ -257,7 +256,7 @@
             ? 'team5171://oauth/callback'
             : `${window.location.origin}${window.location.pathname}`;
 
-        const auth = new Team5171Client({
+        const auth = new window.Team5171Client({
             clientId: 'app',
             accountsUrl: 'https://accounts.team5171.com',
             gatewayUrl: 'https://team5171-auth-gateway.yorkroboticsfrc.workers.dev',
@@ -324,18 +323,18 @@
         }
 
         // Handle OAuth callback on the landing page if ?code= is present
-        const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('code')) {
-            try {
-                await auth.handleCallback();
-                // Clean URL parameters while retaining ?app=true if present
-                const cleanParams = new URLSearchParams();
-                if (urlParams.get('app') === 'true') cleanParams.set('app', 'true');
-                const cleanQuery = cleanParams.toString() ? `?${cleanParams.toString()}` : '';
-                window.history.replaceState({}, document.title, window.location.pathname + cleanQuery);
-            } catch (err) {
-                console.error('OAuth Callback exchange failed:', err);
-            }
+            auth.handleCallback()
+                .then(() => {
+                    const cleanParams = new URLSearchParams();
+                    if (urlParams.get('app') === 'true') cleanParams.set('app', 'true');
+                    const cleanQuery = cleanParams.toString() ? `?${cleanParams.toString()}` : '';
+                    window.history.replaceState({}, document.title, window.location.pathname + cleanQuery);
+                    updateAuthUI();
+                })
+                .catch((err) => {
+                    console.error('OAuth Callback exchange failed:', err);
+                });
         }
 
         // Expose trigger directly to window for inline onclick & app wrapper
@@ -343,8 +342,8 @@
             if (window.team5171Auth && typeof window.team5171Auth.login === 'function') {
                 window.team5171Auth.login();
             } else {
-                const urlParams = new URLSearchParams(window.location.search);
-                const isApp = Boolean(window.__IS_ELECTRON__ || urlParams.get('app') === 'true');
+                const params = new URLSearchParams(window.location.search);
+                const isApp = Boolean(window.__IS_ELECTRON__ || params.get('app') === 'true');
                 const redirectUri = isApp ? 'team5171://oauth/callback' : window.location.origin + window.location.pathname;
                 window.location.href = `https://accounts.team5171.com/?client_id=app&redirect_uri=${encodeURIComponent(redirectUri)}`;
             }
