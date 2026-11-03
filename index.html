@@ -259,7 +259,27 @@
         });
 
         // Expose to window for app wrapper or console access
-        window.team5171Auth = auth;
+        window.team5171Auth = {
+            client: auth,
+            login: () => auth.login(),
+            logout: () => auth.logout(),
+            handleCallback: async (code) => {
+                const res = await fetch("https://accounts.team5171.com/api/oauth/token", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        code,
+                        client_id: "desktop_app",
+                        redirect_uri: "team5171://oauth/callback"
+                    })
+                });
+                const data = await res.json();
+                if (data.firebaseCustomToken && window.firebase?.auth) {
+                    await firebase.auth().signInWithCustomToken(data.firebaseCustomToken);
+                }
+                return data;
+            }
+        };
 
         // Elements
         const loggedOutEl = document.getElementById('auth-logged-out');
