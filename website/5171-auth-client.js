@@ -15,8 +15,8 @@ export class Team5171Client {
      */
     constructor(options = {}) {
         this.accountsUrl = (options.accountsUrl || 'https://accounts.team5171.com').replace(/\/+$/, '');
-        this.gatewayUrl = (options.gatewayUrl || 'https://team5171-auth-gateway.workers.dev').replace(/\/+$/, '');
-        this.clientId = options.clientId || 'go_dashboard';
+        this.gatewayUrl = (options.gatewayUrl || 'https://team5171-auth-gateway.yorkroboticsfrc.workers.dev').replace(/\/+$/, '');
+        this.clientId = options.clientId || 'app';
         this.clientSecret = options.clientSecret || '';
         this.redirectUri = options.redirectUri || (typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}` : '');
         this.storageKey = options.storageKey || 'team5171_auth';
