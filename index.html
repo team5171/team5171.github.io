@@ -251,17 +251,30 @@
         lucide.createIcons();
 
         // Initialize 5171 Auth Client
+        const urlParams = new URLSearchParams(window.location.search);
+        const isAppEnvironment = Boolean(window.__IS_ELECTRON__ || urlParams.get('app') === 'true');
+        const defaultRedirectUri = isAppEnvironment
+            ? 'team5171://oauth/callback'
+            : `${window.location.origin}${window.location.pathname}`;
+
         const auth = new Team5171Client({
             clientId: 'app',
             accountsUrl: 'https://accounts.team5171.com',
             gatewayUrl: 'https://team5171-auth-gateway.yorkroboticsfrc.workers.dev',
-            redirectUri: `${window.location.origin}${window.location.pathname}`
+            redirectUri: defaultRedirectUri
         });
 
         // Expose to window for app wrapper or console access
         window.team5171Auth = {
             client: auth,
-            login: () => auth.login(),
+            login: (customRedirectUri) => {
+                const targetRedirect = customRedirectUri || (
+                    (window.__IS_ELECTRON__ || new URLSearchParams(window.location.search).get('app') === 'true')
+                        ? 'team5171://oauth/callback'
+                        : `${window.location.origin}${window.location.pathname}`
+                );
+                auth.login({ redirectUri: targetRedirect });
+            },
             logout: () => auth.logout(),
             handleCallback: async (code) => {
                 const res = await fetch("https://accounts.team5171.com/api/oauth/token", {
@@ -327,7 +340,7 @@
 
         if (loginBtn) {
             loginBtn.addEventListener('click', () => {
-                auth.login();
+                window.team5171Auth.login();
             });
         }
 
