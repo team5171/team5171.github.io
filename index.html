@@ -276,20 +276,37 @@
             },
             logout: () => auth.logout(),
             handleCallback: async (code) => {
-                const res = await fetch("https://accounts.team5171.com/api/oauth/token", {
+                console.log("Exchanging auth code with backend...", code);
+
+                // 1. Exchange the auth code with the Accounts API
+                const response = await fetch("https://accounts.team5171.com/api/oauth/token", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        code,
-                        client_id: "desktop_app",
+                        code: code,
+                        client_id: "app",
                         redirect_uri: "team5171://oauth/callback"
                     })
                 });
-                const data = await res.json();
-                if (data.firebaseCustomToken && window.firebase?.auth) {
-                    await firebase.auth().signInWithCustomToken(data.firebaseCustomToken);
+
+                if (!response.ok) {
+                    throw new Error(`Token exchange failed: ${response.statusText}`);
                 }
-                return data;
+
+                const data = await response.json();
+                console.log("Token received, signing into Firebase...", data);
+
+                // 2. Sign in with Firebase Auth using the token
+                if (window.firebase?.auth) {
+                    if (data.firebaseCustomToken) {
+                        await firebase.auth().signInWithCustomToken(data.firebaseCustomToken);
+                    } else if (data.token) {
+                        await firebase.auth().signInWithCustomToken(data.token);
+                    }
+                }
+
+                // 3. Return so Electron knows to refresh and render the logged-in dashboard
+                return true;
             }
         };
 
