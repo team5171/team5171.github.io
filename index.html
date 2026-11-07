@@ -299,12 +299,32 @@
                 console.log("Token received, signing into Firebase...", data);
 
                 // 2. Sign in with Firebase Auth using the token
-                if (window.firebase?.auth) {
-                    if (data.firebaseCustomToken) {
-                        await firebase.auth().signInWithCustomToken(data.firebaseCustomToken);
-                    } else if (data.token) {
-                        await firebase.auth().signInWithCustomToken(data.token);
+                const customToken = data.firebaseCustomToken || data.token;
+                if (customToken) {
+                    if (window.auth && typeof window.auth.signInWithCustomToken === 'function') {
+                        await window.auth.signInWithCustomToken(customToken);
+                    } else if (window.firebaseAuth && typeof window.firebaseAuth.signInWithCustomToken === 'function') {
+                        await window.firebaseAuth.signInWithCustomToken(customToken);
+                    } else if (window.firebase?.auth) {
+                        const fbAuth = typeof window.firebase.auth === 'function' ? window.firebase.auth() : window.firebase.auth;
+                        await fbAuth.signInWithCustomToken(customToken);
+                    } else {
+                        console.warn("[team5171Auth] No Firebase auth instance detected on window. Stored tokens in session.");
                     }
+                }
+
+                // Cache session in auth client so UI updates
+                if (data.access_token || customToken) {
+                    auth._saveSession({
+                        access_token: data.access_token || customToken,
+                        token_type: data.token_type || 'Bearer',
+                        expires_at: Date.now() + (data.expires_in || 3600) * 1000,
+                        user_id: data.user_id,
+                        app_id: data.app_id || 'app',
+                        user_name: data.user_name || data.name || '',
+                        user_email: data.user_email || data.email || ''
+                    });
+                    updateAuthUI();
                 }
 
                 // 3. Return so Electron knows to refresh and render the logged-in dashboard
