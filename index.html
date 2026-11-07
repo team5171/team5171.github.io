@@ -258,6 +258,7 @@
 
         const auth = new window.Team5171Client({
             clientId: 'app',
+            clientSecret: 'app_secret_5171',
             accountsUrl: 'https://accounts.team5171.com',
             gatewayUrl: 'https://team5171-auth-gateway.yorkroboticsfrc.workers.dev',
             redirectUri: defaultRedirectUri
@@ -285,6 +286,7 @@
                     body: JSON.stringify({
                         code: code,
                         client_id: "app",
+                        client_secret: "app_secret_5171",
                         redirect_uri: "team5171://oauth/callback"
                     })
                 });
